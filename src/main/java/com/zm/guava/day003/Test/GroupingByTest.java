@@ -1,33 +1,72 @@
-package com.zm.guava.day003;
+package com.zm.guava.day003.Test;
 
 
+import com.zm.guava.day003.Student;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static com.zm.guava.util.StudentUtil.student;
 import static java.util.stream.Collectors.*;
 
 
-public class CollectorTest {
+public class GroupingByTest {
 
     public static void main(String[] args) {
 
-        //groupingBy
-//        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType))).ifPresent(System.out::println);
-//        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, counting()))).ifPresent(System.out::println);
-//        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, TreeMap::new, counting()))).ifPresent(System.out::println);
-//        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, () -> new TreeMap<>((o1, o2) -> -o1.compareTo(o2)), counting()))).ifPresent(System.out::println);
+        /**
+         * groupingBy
+         */
+        // 统计各个年级的学生信息。
+        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType))).ifPresent(System.out::println);
+        // 统计各个年级的学生人数。
+        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, counting()))).ifPresent(System.out::println);
+        // 二级分组
+        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, groupingBy(s->{
+            if(s.getTotalScore()<400) {return "LOW";}
+            else if(s.getTotalScore()>=400 && s.getTotalScore()<=500) {return "MID";}
+            else {return "HIGH";}
+        })))).ifPresent(System.out::println);
+        // 统计各个年级的人数，并有序输出。
+        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, TreeMap::new, counting()))).ifPresent(System.out::println);
+        // 自定义排序的TreeMap
+        Optional.ofNullable(student().collect(
+                    groupingBy(Student::getGradeType,
+                               () -> new TreeMap<>((o1, o2) -> -o1.compareTo(o2)),
+                               counting()))
+        ).ifPresent(System.out::println);
+
+        /**
+         *         collectingAndThen 每个年级的最高分
+          */
+        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, maxBy(Comparator.comparing(Student::getTotalScore))))).ifPresent(System.out::println);
+        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, collectingAndThen(maxBy(Comparator.comparing(Student::getTotalScore)), o->o.get().getName())))).ifPresent(System.out::print);
 
 
+        /**
+         * groupingByConcurrent
+         */
+//        groupingByConcurrent();
+
+
+        /**
+         *  partitioningBy
+         */
+
+//        Optional.ofNullable(student().collect(partitioningBy(Student::isLocal))).ifPresent(System.out::println);
+//        Optional.ofNullable(student().collect(partitioningBy(Student::isLocal,averagingInt(Student::getTotalScore)))).ifPresent(System.out::println);
+
+    }
+
+    private static void groupingByConcurrent() {
         System.out.println("-------------------------");
         //groupingByConcurrent
         ArrayList<Student> students = new ArrayList<>();
         Random random = new Random();
-        for (int i = 1; i <= 200000000; i++) {
+        for (int i = 1; i <= 2000; i++) {
             Student tmp = new Student();
             tmp.setTotalScore(random.nextInt(20) + 10);
             students.add(tmp);
@@ -36,6 +75,7 @@ public class CollectorTest {
         long l = System.currentTimeMillis();
         System.out.println(students.stream().count());
         Map<Integer, List<Student>> map = students.stream().collect(Collectors.groupingBy(Student::getTotalScore));
+        System.out.println(map.keySet().size());
         System.out.println(System.currentTimeMillis() - l);
 
         l = System.currentTimeMillis();
@@ -44,18 +84,6 @@ public class CollectorTest {
 
         boolean result = mapCompar(students, map, map2);
         System.out.println(result);
-
-    }
-
-    private static Stream<Student> student() {
-        return Stream.of(
-                new Student("刘一", 721, true, Student.GradeType.THREE),
-                new Student("陈二", 637, true, Student.GradeType.THREE),
-                new Student("张三", 666, true, Student.GradeType.THREE),
-                new Student("李四", 531, true, Student.GradeType.ONE),
-                new Student("王五", 483, false, Student.GradeType.THREE),
-                new Student("赵六", 367, true, Student.GradeType.THREE),
-                new Student("孙七", 499, false, Student.GradeType.TWO));
     }
 
     public static class TreeMapWithComparator implements Supplier<TreeMap> {
