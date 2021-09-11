@@ -32,5 +32,6 @@ public class FlatMap {
 //        collect2.forEach(i-> i.forEach(System.out::print));
 
         google.stream().map(s -> s.split("")).flatMap(Arrays::stream).distinct().forEach(System.out::print);
+
     }
 }

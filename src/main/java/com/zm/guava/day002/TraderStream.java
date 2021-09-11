@@ -1,5 +1,9 @@
 package com.zm.guava.day002;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -14,7 +18,7 @@ public class TraderStream {
         Trader raoul = new Trader("Raoul","Cambridge");
         Trader alan = new Trader("Alan","Cambridge");
         Trader mario = new Trader("Mario","Milan");
-        Trader brain = new Trader("Brain","Cambridge");
+        Trader brain = new Trader("null","Cambridge");
 
         List<Transaction> transactions = Arrays.asList(
                 new Transaction(raoul, 2011, 310),
@@ -24,6 +28,11 @@ public class TraderStream {
                 new Transaction(brain, 2011, 330),
                 new Transaction(alan, 2012, 950)
         );
+
+
+
+
+        /**
 
         //1.找出2011年发生的所有交易，并按交易额非序（从低到高）。
         sorted(transactions);
@@ -72,7 +81,21 @@ public class TraderStream {
         ArrayList<Integer> objects = new ArrayList<>();
             System.out.println(objects.stream().max(Integer::compareTo));
 //            list.stream().collect(groupingBy())
+
+         *
+         *
+         */
+
+
+
+        System.out.println("optional test");
+        transactions.stream().map(TraderStream::optionalGetName).forEach(System.out::println);
     }
+
+    private static String optionalGetName(Transaction t) {
+       return  Optional.ofNullable(t).map(Transaction::getTrader).map(Trader::getName).orElse("default");
+    }
+
 
     private static void getMax(List<Transaction> transactions) {
         System.out.println("QUESTION 7");
