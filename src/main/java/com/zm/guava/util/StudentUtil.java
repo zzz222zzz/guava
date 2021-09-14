@@ -14,8 +14,9 @@ public class StudentUtil {
                 new Student("张三", 666, true, Student.GradeType.THREE),
                 new Student("李四", 531, true, Student.GradeType.ONE),
                 new Student("王五", 483, false, Student.GradeType.THREE),
-                new Student("赵六", 367, true, Student.GradeType.THREE),
-                new Student("孙七", 499, false, Student.GradeType.TWO));
+                new Student("孙七", 499, false, Student.GradeType.TWO),
+                new Student("赵六", 367, true, Student.GradeType.THREE)
+                );
     }
 
     public static Stream<Student> studentLastMonth() {

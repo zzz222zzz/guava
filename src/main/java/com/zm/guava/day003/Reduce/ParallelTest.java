@@ -10,17 +10,18 @@ public class ParallelTest {
     public static void main(String[] args) {
         // 并行流线程数
 //        poolNum();
-
+        long a = 1000_0000L;
         // parallel test
         System.out.println("sumByFor="+measureSumPerf(ParallelTest::sumByFor, 1000_0000));
-        System.out.println("sumByStreamIterate="+measureSumPerf(ParallelTest::sumByStreamIterate, 1000_0000));
-        System.out.println("sumByParallelStreamIterate="+measureSumPerf(ParallelTest::sumByParallelStreamIterate, 1000_0000));
-        System.out.println("sumByStreamRange="+measureSumPerf(ParallelTest::sumByStreamRange, 1000_0000));
-        System.out.println("sumByParallelStreamRange="+measureSumPerf(ParallelTest::sumByParallelStreamRange, 1000_0000));
-        System.out.println("sumBySideEffectParallel="+measureSumPerf(ParallelTest::sumBySideEffectParallel, 1000_0000));
+        System.out.println("sumByStreamIterate="+measureSumPerf(
+                s->ParallelTest.sumByStreamIterate(Stream.iterate(0L, i -> i + 1L).limit(a)), 1000_0000));
+        System.out.println("sumByParallelStreamIterate="+measureSumPerf(
+                s->ParallelTest.sumByParallelStreamIterate(Stream.iterate(0L, i -> i + 1L).limit(a)), 1000_0000));
+        System.out.println("sumByStreamRange="+measureSumPerf(s->ParallelTest.sumByStreamRange(LongStream.rangeClosed(0, a)), 1000_0000));
 
+        System.out.println("sumByParallelStreamRange="+measureSumPerf(s->ParallelTest.sumByParallelStreamRange(LongStream.rangeClosed(0, a)), 1000_0000));
+//        System.out.println("sumBySideEffectParallel="+measureSumPerf(ParallelTest::sumBySideEffectParallel, 1000_0000));
 
-        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
 
     }
 
@@ -52,24 +53,23 @@ public class ParallelTest {
         return sum;
     }
 
-    public static long sumByStreamIterate(long a) {
-        return Stream.iterate(0L, i -> i + 1L).limit(a+1).reduce(Long::sum).orElse(0L);
+    public static long sumByStreamIterate(Stream<Long> a) {
+        return a.reduce(Long::sum).orElse(0L);
     }
 
-    public static long sumByStreamRange(long a) {
-        return LongStream.rangeClosed(0, a).sum();
+    public static long sumByStreamRange(LongStream a) {
+        return a.sum();
     }
 
-    public static long sumByParallelStreamIterate(long a) {
-        return Stream.iterate(0L, i -> i + 1L).limit(a+1).parallel().reduce(Long::sum).orElse(0L);
+    public static long sumByParallelStreamIterate(Stream<Long> a) {
+        return a.parallel().reduce(Long::sum).orElse(0L);
     }
 
-    public static long sumByParallelStreamRange(long a) {
-        return LongStream.rangeClosed(0, a).parallel().sum();
+    public static long sumByParallelStreamRange(LongStream a) {
+        return a.parallel().sum();
     }
 
     public static long sumBySideEffectParallel(long a){
-        //错误思维  ： 初始化一个累加器，一个个遍历列表中的元素，把它们和累加器相加
         Accumulator accumulator = new Accumulator();
         LongStream.rangeClosed(0,a).parallel().forEach(accumulator::add);
         return accumulator.getSum();

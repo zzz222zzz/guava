@@ -17,82 +17,84 @@ public class GroupingByTest {
 
     public static void main(String[] args) {
 
-        /**
-         * groupingBy
-         */
-        // 统计各个年级的学生信息。
-        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType))).ifPresent(m->{ m.keySet().forEach(System.out::println); });
-        // 统计各个年级的学生人数。
-        Optional.ofNullable(student().collect(
-                groupingBy(Student::getGradeType,
-                        counting()))).ifPresent(System.out::println);
-        // 二级分组
-        Optional.ofNullable(student().collect(
-                groupingBy(Student::getGradeType, groupingBy(s->{
-            if(s.getTotalScore()<400) {return "LOW";}
-            else if(s.getTotalScore()>=400 && s.getTotalScore()<=500) {return "MID";}
-            else {return "HIGH";}
-        })))).ifPresent(System.out::println);
-        // 统计各个年级的人数，并有序输出。
-        Optional.ofNullable(student().collect(
-                groupingBy(Student::getGradeType, TreeMap::new, counting()))).ifPresent(System.out::println);
-        // 自定义排序的TreeMap
-        Optional.ofNullable(student().collect(
-                    groupingBy(Student::getGradeType,
-                               () -> new TreeMap<>((o1, o2) -> -o1.compareTo(o2)),
-                               counting()))
-        ).ifPresent(System.out::println);
-
-        /**
-         *         collectingAndThen 每个年级的最高分
-          */
-        Optional.ofNullable(student().collect(
-                groupingBy(Student::getGradeType, maxBy(Comparator.comparing(Student::getTotalScore))))
-        ).ifPresent(System.out::println);
-        Optional.ofNullable(student().collect(
-                groupingBy(Student::getGradeType,
-                collectingAndThen(maxBy(Comparator.comparing(Student::getTotalScore)),
-                        o->o.get().getName())))).ifPresent(System.out::print);
+//        /**
+//         * groupingBy
+//         */
+//        System.out.println("统计各个年级的学生信息。");
+//        Optional.ofNullable(student().
+//                collect(
+//                        groupingBy(Student::getGradeType))
+//        ).ifPresent(m->{ m.keySet().forEach(System.out::println); });
+//        System.out.println("统计各个年级的学生人数。");
+//        Optional.ofNullable(student().collect(
+//                groupingBy(Student::getGradeType,
+//                        counting()))).ifPresent(System.out::println);
+//        System.out.println("/二级分组");
+//        Optional.ofNullable(student().collect(
+//                groupingBy(Student::getGradeType,
+//                        groupingBy(s->{
+//            if(s.getTotalScore()<400) {return "LOW";}
+//            else if(s.getTotalScore()>=400 && s.getTotalScore()<=500) {return "MID";}
+//            else {return "HIGH";}
+//        })))).ifPresent(System.out::println);
+//        System.out.println("统计各个年级的人数，并有序输出。");
+//        Optional.ofNullable(student().collect(
+//                groupingBy(Student::getGradeType, TreeMap::new, counting()))).ifPresent(System.out::println);
+//        System.out.println("自定义排序的TreeMap。");
+//        Optional.ofNullable(student().collect(
+//                    groupingBy(Student::getGradeType,
+//                               () -> new TreeMap<>((o1, o2) -> -o1.compareTo(o2)),
+//                               counting()))
+//        ).ifPresent(System.out::println);
+//
+//        /**
+//         *         collectingAndThen 每个年级的最高分
+//          */
+//        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, maxBy(Comparator.comparing(Student::getTotalScore))))).ifPresent(System.out::println);
+//        Optional.ofNullable(student().collect(groupingBy(Student::getGradeType, collectingAndThen(maxBy(Comparator.comparing(Student::getTotalScore)), o->o.get().getName())))).ifPresent(System.out::print);
 
 
         /**
          * groupingByConcurrent  带并发的收集器
          */
-        groupingByConcurrent();
+        System.out.println("groupingByConcurrent  带并发的收集器");
+        groupingByConcurrentTest();
 
 
         /**
          *  partitioningBy
          */
-
+        System.out.println("partitioningBy");
 //        Optional.ofNullable(student().collect(partitioningBy(Student::isLocal))).ifPresent(System.out::println);
 //        Optional.ofNullable(student().collect(partitioningBy(Student::isLocal,averagingInt(Student::getTotalScore)))).ifPresent(System.out::println);
 
     }
 
-    private static void groupingByConcurrent() {
+    private static void groupingByConcurrentTest() {
         System.out.println("-------------------------");
         //groupingByConcurrent
         ArrayList<Student> students = new ArrayList<>();
         Random random = new Random();
         for (int i = 1; i <= 2000000; i++) {
             Student tmp = new Student();
-            tmp.setTotalScore(random.nextInt(20) + 10);
+            tmp.setTotalScore(random.nextInt(2000) + 10);
             students.add(tmp);
         }
 
         long l = System.currentTimeMillis();
-        System.out.println(students.stream().count());
-        Map<Integer, List<Student>> map = students.stream().collect(Collectors.groupingBy(Student::getTotalScore));
+        System.out.println("学生数"+(long) students.size());
+        Map<Integer, List<Student>> map = students.stream()
+                .collect(Collectors.groupingBy(Student::getTotalScore));
         System.out.println(map.keySet().size());
-        System.out.println(System.currentTimeMillis() - l);
+        System.out.println("顺序流:"+(System.currentTimeMillis() - l));
 
         l = System.currentTimeMillis();
-        ConcurrentMap<Integer, List<Student>> map2 = students.parallelStream().collect(Collectors.groupingByConcurrent(Student::getTotalScore));
-        System.out.println(System.currentTimeMillis() - l);
+        ConcurrentMap<Integer, List<Student>> map2 = students.parallelStream()
+                .collect(Collectors.groupingByConcurrent(Student::getTotalScore));
+        System.out.println("并行流"+(System.currentTimeMillis() - l));
 
         boolean result = mapCompar(students, map, map2);
-        System.out.println(result);
+        System.out.println("是否相等："+result);
     }
 
     public static class TreeMapWithComparator implements Supplier<TreeMap> {

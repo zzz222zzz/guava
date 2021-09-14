@@ -26,6 +26,8 @@ public class MiddleTest {
                 .collect(Collectors.toList())).ifPresent(System.out::println);
 
 
+        student().map(s->s.getName()).collect(Collectors.toList());
+
         //  reduce
         student().map(s->1L).reduce((a,b)->a+b);
         student().count();

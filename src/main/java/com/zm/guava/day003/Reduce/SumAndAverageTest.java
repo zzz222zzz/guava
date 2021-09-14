@@ -12,15 +12,15 @@ public class SumAndAverageTest {
     public static void main(String[] args) {
         // 数值操作
         Optional.ofNullable(student().collect(counting())).ifPresent(System.out::println);
-        Optional.ofNullable(student().collect(maxBy(Comparator.comparing(Student::getTotalScore)))).ifPresent(System.out::println);
-        Optional.ofNullable(student().collect(minBy(Comparator.comparing(Student::getTotalScore)))).ifPresent(System.out::println);
-        Optional.ofNullable(student().collect(summingDouble(Student::getTotalScore))).ifPresent(System.out::println);
-        Optional.ofNullable(student().collect(averagingDouble(Student::getTotalScore))).ifPresent(System.out::println);
-        // 综述
-        Optional.ofNullable(student().collect(summarizingDouble(Student::getTotalScore))).ifPresent(System.out::println);
+        Optional.of(student().collect(maxBy(Comparator.comparing(Student::getTotalScore)))).ifPresent(System.out::println);
+        Optional.of(student().collect(minBy(Comparator.comparing(Student::getTotalScore)))).ifPresent(System.out::println);
+        Optional.of(student().collect(summingDouble(Student::getTotalScore))).ifPresent(System.out::println);
+        Optional.of(student().collect(averagingDouble(Student::getTotalScore))).ifPresent(System.out::println);
 
-        // 返回Optional类型
-        Optional<Student> first = student().filter(s -> s.getTotalScore() > 400).findFirst();
+        System.out.println("summarizingDouble");
+        Optional.of(student().collect(summarizingDouble(Student::getTotalScore))).ifPresent(System.out::println);
+
+        // findFirst  返回Optional类型
 
 
     }

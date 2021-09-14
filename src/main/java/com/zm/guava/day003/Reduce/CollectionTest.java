@@ -22,17 +22,33 @@ public class CollectionTest {
         /**
          * toMap
          */
-        Optional.of(student().collect(toMap(Student::getName,Student::getTotalScore))).ifPresent(System.out::println);
+//        Optional.of(
+//                student().collect(toMap(Student::getName,Student::getTotalScore))
+//        ).ifPresent(System.out::println);
         Optional.of(studentWithRepeat().collect(toMap(Student::getName,Student::getTotalScore,(k1,k2)->k1))).ifPresent(System.out::println);
-        //以年级为键学生人数为值统计信息
+        System.out.println("//以年级为键学生人数为值统计信息");
+
         Optional.of(student().collect(toMap(student -> student.getGradeType(), v->1L, Long::sum))).ifPresent(System.out::println);
-        // treeMap 默认排L
-        Optional.of(student().collect(toMap(Student::getName,Student::getTotalScore,(k1,k2)->k1, TreeMap::new))).ifPresent(System.out::println);
-        // 按照拼音排序
-        Optional.of(student().collect(toMap(Student::getName,Student::getTotalScore,(k1,k2)->k1
-                , ()->new TreeMap<>(Collator.getInstance(Locale.CHINESE)::compare)))).ifPresent(System.out::println);
-        // 插入顺序排序
-        Optional.of(student().collect(toMap(Student::getName,Student::getTotalScore,(k1, k2)->k1,LinkedHashMap::new))).ifPresent(System.out::println);
+        System.out.println("// treeMap 默认排L");
+        Optional.of(student().collect(
+                toMap(Student::getName,
+                        Student::getTotalScore,
+                        (k1,k2)->k1,
+                        TreeMap::new))
+        ).ifPresent(System.out::println);
+        System.out.println("// 按照拼音排序");
+        Optional.of(student().collect(
+                toMap(Student::getName,
+                        Student::getTotalScore,
+                        (k1,k2)->k1
+                , ()->new TreeMap<>(Collator.getInstance(Locale.CHINESE)::compare)))
+        ).ifPresent(System.out::println);
+        System.out.println("// 插入顺序排序");
+        Optional.of(student().collect(
+                toMap(Student::getName,
+                        Student::getTotalScore,
+                        (k1, k2)->k1,LinkedHashMap::new))
+        ).ifPresent(System.out::println);
 
 
     }
